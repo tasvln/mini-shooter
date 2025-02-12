@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 23)
 
 project(MINISHOOTER VERSION 1.0.0)
 
-add_executable(MINISHOOTER main.cpp ext/window/Window.cpp)
+add_executable(MINISHOOTER main.cpp ext/window/Window.cpp ext/texture/Texture.cpp ext/player/Player.cpp)
 
 # Variables storing SDL framework locations
 set(SDL2

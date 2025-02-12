@@ -15,6 +15,25 @@ bool loadMedia()
   return loading;
 }
 
+vector<SDL_Rect> getWalls()
+{
+  vector<SDL_Rect> walls;
+
+  for (int row = 0; row < MAP_HEIGHT; row++)
+  {
+    for (int col = 0; col < MAP_WIDTH; col++)
+    {
+      if (map[row][col] == 1) // Wall detected
+      {
+        SDL_Rect wall = {col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE};
+        walls.push_back(wall);
+      }
+    }
+  }
+
+  return walls;
+}
+
 void closeApp()
 {
   TTF_CloseFont(gFont);
@@ -22,6 +41,30 @@ void closeApp()
 
   TTF_Quit();
   SDL_Quit();
+}
+
+void drawMap(SDL_Renderer *renderer)
+{
+  for (int y = 0; y < MAP_HEIGHT; ++y)
+  {
+    for (int x = 0; x < MAP_WIDTH; ++x)
+    {
+      SDL_Rect tileRect = {x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE};
+
+      if (map[y][x] == 1)
+      {
+        // Draw black (non-playable) tile
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black
+      }
+      else
+      {
+        // Draw white (playable) tile
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255); // White
+      }
+
+      SDL_RenderFillRect(renderer, &tileRect);
+    }
+  }
 }
 
 int main(int argc, char *argv[])
@@ -43,7 +86,11 @@ int main(int argc, char *argv[])
       printf("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
     }
 
+    SDL_Color plyrColor = {255, 0, 0};
+
     Window window("MINI SHOOTER", SCREEN_WIDTH, SCREEN_HEIGHT);
+
+    Player player(window.getWidth() / 2, window.getHeight() / 2, PLYR_SIZE, PLYR_SIZE, 2, 0, 0, plyrColor);
 
     if (!window.init())
     {
@@ -51,16 +98,14 @@ int main(int argc, char *argv[])
     }
     else
     {
-
       if (!loadMedia())
       {
         printf("Failed to load Images/Textures!\n");
       }
       else
       {
-        int score = 0;
+        vector<SDL_Rect> walls = getWalls();
         bool isRunning = true;
-        bool gameOver = false;
         SDL_Event evt;
 
         while (isRunning)
@@ -72,20 +117,24 @@ int main(int argc, char *argv[])
               isRunning = false;
             }
 
-            // if (gameOver && evt.type == SDL_KEYDOWN && evt.key.keysym.sym == SDLK_r)
-            // {
-            //   gameOver = false;
-            //   score = 0;
-            // }
+            player.eventHandler(evt);
           }
 
+          player.move(window.getWidth(), window.getHeight(), walls);
+
           window.clearScreen(0xFF, 0xFF, 0xFF, 0xFF);
+
+          drawMap(window.getRenderer());
+
+          player.render(window.getRenderer());
 
           window.presentRender();
         }
       }
     }
   }
+
+  delete walls;
 
   closeApp();
 
