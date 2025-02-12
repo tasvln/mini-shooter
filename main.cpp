@@ -34,6 +34,16 @@ vector<SDL_Rect> getWalls()
   return walls;
 }
 
+void renderWalls(SDL_Renderer *renderer, const std::vector<SDL_Rect> &walls)
+{
+  for (const SDL_Rect &wall : walls)
+  {
+    SDL_Rect renderQuad = {wall.x, wall.y, wall.w, wall.h};
+    SDL_SetRenderDrawColor(renderer, 255, 0, 0, 0); // Wall color (black)
+    SDL_RenderFillRect(renderer, &renderQuad);
+  }
+}
+
 void closeApp()
 {
   TTF_CloseFont(gFont);
@@ -65,6 +75,35 @@ void drawMap(SDL_Renderer *renderer)
       SDL_RenderFillRect(renderer, &tileRect);
     }
   }
+}
+
+void renderMiniMap(SDL_Renderer *renderer, int pX, int pY, const vector<SDL_Rect> &walls)
+{
+  SDL_Rect miniMapRect = {SCREEN_WIDTH - MINI_MAP_WIDTH, SCREEN_HEIGHT - MINI_MAP_HEIGHT, MINI_MAP_WIDTH, MINI_MAP_HEIGHT};
+  SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+  SDL_RenderFillRect(renderer, &miniMapRect);
+
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255); // Black border
+  SDL_RenderDrawRect(renderer, &miniMapRect);
+
+  int pMiniMapW = scaleX * PLYR_SIZE;
+  int pMiniMapH = scaleY * PLYR_SIZE;
+
+  SDL_Rect pMiniMap = {SCREEN_WIDTH - MINI_MAP_WIDTH, SCREEN_HEIGHT - MINI_MAP_HEIGHT, pMiniMapW, pMiniMapH};
+  SDL_SetRenderDrawColor(renderer, 0, 255, 0, 255);
+  SDL_RenderFillRect(renderer, &pMiniMap);
+
+  // for (const auto &wall : walls)
+  // {
+  //   int wallMiniMapX = wall.x * scaleX;
+  //   int wallMiniMapY = wall.y * scaleY;
+  //   int wallMiniMapWidth = wall.w * scaleX;
+  //   int wallMiniMapHeight = wall.h * scaleY;
+
+  //   SDL_Rect miniWall = {wallMiniMapX, wallMiniMapY, wallMiniMapWidth, wallMiniMapHeight};
+  //   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+  //   SDL_RenderFillRect(renderer, &miniWall);
+  // }
 }
 
 int main(int argc, char *argv[])
@@ -124,17 +163,17 @@ int main(int argc, char *argv[])
 
           window.clearScreen(0xFF, 0xFF, 0xFF, 0xFF);
 
-          drawMap(window.getRenderer());
+          renderWalls(window.getRenderer(), walls);
 
           player.render(window.getRenderer());
+
+          // renderMiniMap(window.getRenderer(), player.getX(), player.getY(), walls);
 
           window.presentRender();
         }
       }
     }
   }
-
-  delete walls;
 
   closeApp();
 

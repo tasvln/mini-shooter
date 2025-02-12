@@ -1,10 +1,8 @@
 #include <SDL.h>
-#include <SDL_image.h>
-#include <SDL_ttf.h>
 #include <vector>
 
 const int MAP_WIDTH = 20;
-const int MAP_HEIGHT = 17;
+const int MAP_HEIGHT = 20;
 
 const int TILE_SIZE = 32;
 
